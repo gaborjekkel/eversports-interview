@@ -1,8 +1,14 @@
+/* TYPES */
+
+interface Props {
+  isChecked: boolean
+}
+
 /* MAIN */
 
 
 // This component can be extended with local state management by adding useState and onClick
-export default function Checkbox(isChecked = false) {
+export default function Checkbox({ isChecked }: Props) {
   return (
     <span 
       role="checkbox" 
