@@ -70,6 +70,7 @@ const RenderLoading = function() {
 
 
 // a scroll based requesting could be a nice solution for fetching data in smaller batches
+// there might be something better for handling outside click, but I tried to keep my code flexible instead of turning a huge package up side down to match style and functional expectations
 export default function CheckableList(props: CheckableListProps) {
   const { loading, error, data } = useQuery(PRODUCTS_QUERY, {
     variables: { first: 10, },
