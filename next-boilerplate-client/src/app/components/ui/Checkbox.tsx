@@ -13,7 +13,7 @@ export default function Checkbox({ isChecked }: Props) {
     <span 
       role="checkbox" 
       aria-checked={isChecked} 
-      className="flex items-center justify-center border w-[16px] h-[16px] rounded-[4px] border-solid border-grey500 "
+      className="flex items-center justify-center w-[16px] h-[16px] rounded-[4px] border border-solid border-grey500"
     >
       {isChecked && (
         <div className="flex w-[12px] h-[12px] rounded-[2px] bg-green500 items-center justify-center p-[2px] text-white">
