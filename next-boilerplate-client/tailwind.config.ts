@@ -16,6 +16,10 @@ const config: Config = {
       green700: '#14645A',
       green500: '#21A696',
       blue100: '#F9FBFB',
+      red700: '#C53030'
+    },
+    boxShadow: {
+      m: '0px 8px 16px 0px rgba(20, 20, 20, 0.16)'
     }
   },
   plugins: [],
