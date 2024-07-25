@@ -4,10 +4,12 @@
 import React, { useRef, useEffect, useCallback } from "react";
 import { useQuery } from '@apollo/client';
 
+
 /* LOCALS */
 
 
 import Checkbox from "./Checkbox"
+import { ErrorMessage, LoadingMessage } from "./StateMessages";
 import { PRODUCTS_QUERY } from "../../helpers/queries";
 
 
@@ -50,20 +52,6 @@ const RenderListRow = function({selection, onClickItem, item }: RenderListRowPro
   )
 }
 
-// might be an own component
-const RenderError = function() {
-  return (
-    <div>Error</div>
-  )
-}
-
-// might be an own component
-const RenderLoading = function() {
-  return (
-    <div>Loading</div>
-  )
-}
-
 
 /* MAIN */
 
@@ -91,15 +79,15 @@ export default function CheckableList(props: CheckableListProps) {
     }
   }, [])
   
-  if(error) return <RenderError />
-  if(loading) return <RenderLoading />
-
 
   // search no found
-  
   return (
-    <div ref={list}>
-      {data.products.nodes.map((item: ListItem) => <RenderListRow key={item.id} item={item} selection={props.selection} onClickItem={props.onClickItem}/>)}
+    <div ref={list} className="absolute bg-white top-[105%] w-[100%] shadow-m rounded-[10px]">
+      {true && <ErrorMessage />}
+      {true && <LoadingMessage />}
+      {(!error && !loading) &&
+        data.products.nodes.map((item: ListItem) => <RenderListRow key={item.id} item={item} selection={props.selection} onClickItem={props.onClickItem}/>)
+      }
     </div>
   )
 }
