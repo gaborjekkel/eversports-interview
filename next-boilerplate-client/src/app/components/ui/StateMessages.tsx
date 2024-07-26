@@ -35,6 +35,14 @@ export const ErrorMessage = function() {
     )
 }
 
+export const NoSearchFoundMessage = function() {
+    return (
+        <MessageWrapper>
+            <div className='text-size-default text-green500 text-center'>No result found</div>
+        </MessageWrapper>
+    )
+}
+
 export const LoadingMessage = function() {
     return (
         <MessageWrapper>
