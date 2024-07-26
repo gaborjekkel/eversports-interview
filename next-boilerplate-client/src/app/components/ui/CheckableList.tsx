@@ -1,7 +1,7 @@
 /* EXTERNALS */
 
 
-import React, { useRef, useEffect, useCallback } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useQuery } from '@apollo/client';
 
 
@@ -21,18 +21,15 @@ interface ListItem {
   name: string,
 }
 
-type OnClickItem = (props: ListItem) => void;
-type Selection = string[];
+type Selection = string[]
 
 interface RenderListRowProps {
-  selection: Selection,
-  onClickItem: OnClickItem,
-  item: ListItem
+  isChecked: boolean, 
+  onClickRow: () => void,
+  text: string
 }
 
 interface CheckableListProps {
-  onClickItem: OnClickItem,
-  selection: Selection,
   closeList: () => void,
 }
 
@@ -40,14 +37,14 @@ interface CheckableListProps {
 /* HELPERS */
 
 
-const RenderListRow = function({selection, onClickItem, item }: RenderListRowProps) {
+const RenderListRow = function({isChecked, onClickRow, text }: RenderListRowProps) {
   return (
     <div 
-      className="flex items-center"
-      onClick={() => onClickItem(item)}
+      className="flex items-center cursor-pointer"
+      onClick={() => onClickRow()}
     >
-      <Checkbox isChecked={selection.includes(item.id)} />
-      <span>{item.name}</span>
+      <Checkbox isChecked={isChecked} />
+      <span>{text}</span>
     </div>
   )
 }
@@ -61,8 +58,10 @@ const RenderListRow = function({selection, onClickItem, item }: RenderListRowPro
 // there might be something better for handling outside click, but I tried to keep my code flexible instead of turning a huge package up side down to match style and functional expectations
 export default function CheckableList(props: CheckableListProps) {
   const { loading, error, data } = useQuery(PRODUCTS_QUERY, {
-    variables: { first: 10, },
+    variables: { first: 40, },
   });
+
+  const [selection, setSelection] = useState<Selection>([]);
 
   const list = React.useRef<HTMLInputElement>(null);
 
@@ -72,21 +71,58 @@ export default function CheckableList(props: CheckableListProps) {
     }
   }
 
+  function handleEsc(event: KeyboardEvent) {
+    if ( event.key === 'Escape' || event.code === 'Escape' ) {
+      props.closeList()
+    }
+  }
+
   useEffect(() => {
     document.addEventListener('click', handleOnClick);
+    document.addEventListener('keydown', handleEsc);
     return () => {
       document.removeEventListener('click', handleOnClick);
+      document.removeEventListener('keydown', handleEsc);
     }
   }, [])
   
-
   // search no found
   return (
     <div ref={list} className="absolute bg-white top-[105%] w-[100%] shadow-m rounded-[10px]">
-      {true && <ErrorMessage />}
-      {true && <LoadingMessage />}
-      {(!error && !loading) &&
-        data.products.nodes.map((item: ListItem) => <RenderListRow key={item.id} item={item} selection={props.selection} onClickItem={props.onClickItem}/>)
+      {error && <ErrorMessage />}
+      {loading && <LoadingMessage />}
+      {!error && !loading && data.products.nodes &&
+       (
+        <React.Fragment>
+          <RenderListRow
+            text={'Select All'}
+            isChecked={data.products.nodes.length === selection.length}
+            onClickRow={function() {
+              if (data.products.nodes.length === selection.length) return setSelection([])
+              const allIds = data.products.nodes.map((item: ListItem) => item.id)
+              setSelection(allIds)
+            }} 
+          />
+          {
+             data.products.nodes.map(function(item: ListItem) {
+              const isItemSelected = selection.includes(item.id);
+              return <RenderListRow
+                key={item.id}
+                text={item.name}
+                isChecked={isItemSelected}
+                onClickRow={function() {
+                  if(isItemSelected) {
+                    const newSelection = selection.filter(id => id !== item.id)
+                    setSelection(newSelection)
+                    return
+                  };
+                  setSelection([...selection, item.id])
+                }}
+              />
+            })
+          }
+        </React.Fragment>
+       )
       }
     </div>
   )
