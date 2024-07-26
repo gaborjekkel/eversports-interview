@@ -30,7 +30,7 @@ const MessageWrapper = function({ children }: RendererWrapperProps) {
 export const ErrorMessage = function() {
     return (
         <MessageWrapper>
-            <div className='text-size-default text-red700 text-center'>Oh no something went wrong, please reload the page</div>
+            <div className='text-size-default !text-red700 text-center'>Oh no something went wrong, please reload the page</div>
         </MessageWrapper>
     )
 }
@@ -38,7 +38,7 @@ export const ErrorMessage = function() {
 export const NoSearchFoundMessage = function() {
     return (
         <MessageWrapper>
-            <div className='text-size-default text-green500 text-center'>No result found</div>
+            <div className='text-size-default !text-green500 text-center'>No result found</div>
         </MessageWrapper>
     )
 }
