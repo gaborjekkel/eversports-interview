@@ -19,7 +19,8 @@ const config: Config = {
       red700: '#C53030'
     },
     boxShadow: {
-      m: '0px 8px 16px 0px rgba(20, 20, 20, 0.16)'
+      m: '0px 8px 16px 0px rgba(20, 20, 20, 0.16)',
+      primaryButton: '0px 1px 1px 0px rgba(33, 166, 150, 0.24)',
     }
   },
   plugins: [],
