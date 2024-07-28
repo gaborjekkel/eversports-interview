@@ -8,7 +8,7 @@ const generateProducts = (num: number) => {
     products.push({
       id: faker.string.uuid(),
       name: faker.commerce.productName(),
-      imageUrl: faker.image.avatar(),
+      imageUrl: faker.image.urlLoremFlickr({ category: 'sports' }),
     });
   }
   return products;
