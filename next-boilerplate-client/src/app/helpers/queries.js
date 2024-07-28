@@ -28,7 +28,9 @@ export const PURCHASES_QUERY = `
   query Purchases($productIds: [ID], $userIds: [ID], $first: Int) {
     purchases(productIds: $productIds, userIds: $userIds, first: $first) {
       nodes {
+        id
         product {
+          id
           imageUrl
           name
         }
