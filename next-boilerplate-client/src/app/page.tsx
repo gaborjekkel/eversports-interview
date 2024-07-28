@@ -15,7 +15,7 @@ import { Selection } from './components/ui/SelectableList';
 import { PRODUCTS_QUERY, USERS_QUERY, PURCHASES_QUERY } from "./helpers/queries";
 import Separator from "./components/ui/Separator";
 import PurchaseTile from "./components/ui/PurchaseTile";
-import { ErrorMessage, LoadingMessage } from "./components/ui/StateMessages";
+import { ErrorMessage, LoadingMessage, NoSearchFoundMessage } from "./components/ui/StateMessages";
 
 
 /* TYPES  */
@@ -45,6 +45,7 @@ interface PurchaseData {
 
 
 const dropDownWrapper = 'flex grow mr-[20px] max-w-[370px] max-md:mr-[0px] max-md:mb-[10px] max-md:max-w-[100%]';
+const PAGINATION_STEP = 10;
 
 
 /* MAIN */
@@ -53,21 +54,22 @@ const dropDownWrapper = 'flex grow mr-[20px] max-w-[370px] max-md:mr-[0px] max-m
 export default function Home() {
   const [productFilter, setProductFilter] = useState<Selection>([])
   const [userFilter, setUserFilter] = useState<Selection>([])
+  const [purchaseAmount, setPurchaseAmount] = useState(PAGINATION_STEP)
 
   const productFilterNum = productFilter.length;
   const userFilterNum = userFilter.length;
 
   const { loading, error, data } = useQuery(gql(PURCHASES_QUERY), {
     variables: {
-      'first': 40,
-      'productIds': productFilter,
-      'userIds': userFilter
+      first: productFilterNum > 0 || userFilterNum > 0 ? 0 : purchaseAmount,
+      productIds: productFilter,
+      userIds: userFilter,
     },
   });
   
   return (
-    <div className="flex flex-col py-[20px] h-[100%]">
-      <div className="flex flex-wrap mx-[20px] mb-[20px] max-md:flex-col">
+    <div className="flex flex-col h-[100%] overflow-y-auto">
+      <div className="flex flex-wrap px-[20px] py-[20px] max-md:flex-col bg-white">
         <div className={dropDownWrapper}>
           <DropDown 
             text={productFilterNum === 0 ? 'Select Product' : `${productFilterNum} product${productFilterNum > 1 ? 's' : ''} selected`}
@@ -103,12 +105,28 @@ export default function Home() {
             }} 
           />
         )}
-      </div>
+        </div>
       <Separator />
-      <div className="flex flex-wrap gap-[30px] w-[100% mt-[20px] mx-[20px]">
+      <div className="flex w-[100%] mt-[20px]">
         {error && <div className="mx-auto"><ErrorMessage /></div>}
         {loading && <div className="mx-auto"><LoadingMessage /></div>}
-        {!error && !loading && data.purchases.nodes.map((i:PurchaseData) => <PurchaseTile key={i.id} imageUrl={i.product.imageUrl} name={i.product.name} />)}
+        {!error && !loading && data.purchases.nodes.length > 0 &&  (
+          <div className="flex flex-col px-[20px]">
+            <div className="flex flex-wrap gap-[30px]">
+              {data.purchases.nodes.map((i:PurchaseData) => <PurchaseTile key={i.id} imageUrl={i.product.imageUrl} name={i.product.name} />)}
+            </div>
+            {data.purchases.pageInfo.hasNextPage && (
+              <div className="mt-[20px] mx-auto">
+                <Button text={'Load more'} onClick={() => setPurchaseAmount(purchaseAmount + PAGINATION_STEP)} />
+              </div>
+            )}
+          </div>
+        )}
+        {!error && !loading && data.purchases.nodes.length === 0 &&  (
+          <div className="mt-[20px] mx-auto">
+            <NoSearchFoundMessage />
+          </div>
+        )}
       </div>
     </div>
   );
