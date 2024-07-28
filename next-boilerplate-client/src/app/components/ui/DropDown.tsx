@@ -8,14 +8,14 @@ import { useQuery, gql } from '@apollo/client';
 /* LOCALS */
 
 
-import SelectableList, { SelectableListFooterActions, ListItem } from './SelectableList';
+import SelectableList, { SelectableListFooterActions, ListItem, Selection } from './SelectableList';
 import { ErrorMessage, LoadingMessage } from "./StateMessages";
 
 
 /* TYPE */
 
 
-type DataTransformer = ({}) => ListItem[];
+type DataTransformer = ({}:any) => ListItem[];
 
 interface QueryProps {
   query: string, 
@@ -24,11 +24,13 @@ interface QueryProps {
 
 interface DropDownProps extends SelectableListFooterActions, QueryProps {
   dataTransformer: DataTransformer,
+  currentSelection: Selection,
   text: string,
 }
 
 interface RenderContentProps extends SelectableListFooterActions, QueryProps {
   dataTransformer: DataTransformer,
+  currentSelection: Selection,
   closeList: () => void,
 }
 
@@ -39,11 +41,11 @@ interface RenderContentProps extends SelectableListFooterActions, QueryProps {
 const RenderContent = function(props: RenderContentProps) {
   const {
     closeList,
+    currentSelection,
     dataTransformer,
-    onClickApply,
-    onClickCancel,
     query,
     queryVariables,
+    updateCurrentSelection,
   } = props;
 
   const { loading, error, data } = useQuery(gql(query), {
@@ -82,8 +84,8 @@ const RenderContent = function(props: RenderContentProps) {
   } else if(!error && !loading && data) {
     Renderer = <SelectableList 
       list={dataTransformer(data)}
-      onClickApply={onClickApply}
-      onClickCancel={onClickCancel}
+      updateCurrentSelection={updateCurrentSelection}
+      currentSelection={currentSelection}
     />
   } else {
     // fallback for any unknown issue
@@ -109,7 +111,7 @@ export default function DropDown(props: DropDownProps) {
   const iconStyle = isOpen ? "rotate-180" : "rotate-0"
   
   return (
-    <div className="flex relative max-w-[370px] w-[100%]">
+    <div className="flex relative w-[100%]">
       <div className={`flex items-center w-[100%] px-[15px] py-[10px] rounded-[10px] border cursor-pointer transition-colors ${selectStyle}`} onClick={() => setIsOpen(!isOpen)}>
         <span className='truncate mr-[10px] transition-colors grow'>
           {text}

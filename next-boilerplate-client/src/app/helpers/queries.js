@@ -23,3 +23,16 @@ export const USERS_QUERY = `
     }
   }
 `;
+
+export const PURCHASES_QUERY = `
+  query Purchases($productIds: [ID], $userIds: [ID], $first: Int) {
+    purchases(productIds: $productIds, userIds: $userIds, first: $first) {
+      nodes {
+        product {
+          imageUrl
+          name
+        }
+      }
+    }
+  }
+`;

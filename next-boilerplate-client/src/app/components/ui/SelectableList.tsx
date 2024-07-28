@@ -22,11 +22,10 @@ export interface ListItem {
 }
 
 export interface SelectableListFooterActions {
-  onClickApply: () => void,
-  onClickCancel: () => void,
+  updateCurrentSelection: React.Dispatch<React.SetStateAction<Selection>>,
 }
 
-type Selection = string[]
+export type Selection = string[]
 
 interface RenderListRowProps {
   isChecked: boolean, 
@@ -36,6 +35,7 @@ interface RenderListRowProps {
 
 
 interface RenderListProps extends SelectableListFooterActions {
+  currentSelection: Selection,
   list: ListItem[]
 }
 
@@ -61,8 +61,8 @@ const RenderListRow = function({ isChecked, onClickRow, text }: RenderListRowPro
 
 
 // a scroll based requesting could be a nice solution for fetching data in smaller batches
-export default function({ list, onClickApply, onClickCancel }: RenderListProps) {
-  const [selection, setSelection] = useState<Selection>([]);
+export default function({ currentSelection, list, updateCurrentSelection }: RenderListProps) {
+  const [selection, setSelection] = useState<Selection>(currentSelection);
   const [searchValue, setSearchValue] = useState('');
 
   const filteredList = list
@@ -126,8 +126,8 @@ export default function({ list, onClickApply, onClickCancel }: RenderListProps) 
       {!hasSearchItem && <NoSearchFoundMessage />}
       <Separator />
       <div className="flex px-[15px] py-[10px] justify-between">
-        <Button text={'Cancel'} isPrimary={false} onClick={() => onClickCancel()} />
-        <Button text={'Apply'} onClick={() => onClickApply()}/>
+        <Button text={'Cancel'} isPrimary={false} onClick={() => updateCurrentSelection([])} />
+        <Button text={'Apply'} onClick={() => updateCurrentSelection(selection)}/>
       </div>  
     </React.Fragment>
   )
