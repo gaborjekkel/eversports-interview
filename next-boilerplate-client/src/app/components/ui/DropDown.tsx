@@ -86,6 +86,7 @@ const RenderContent = function(props: RenderContentProps) {
       list={dataTransformer(data)}
       updateCurrentSelection={updateCurrentSelection}
       currentSelection={currentSelection}
+      closeList={closeList}
     />
   } else {
     // fallback for any unknown issue
@@ -106,7 +107,7 @@ const RenderContent = function(props: RenderContentProps) {
 export default function DropDown(props: DropDownProps) {
   const { text, ...rest } = props;
   const [ isOpen, setIsOpen ] = useState(false);
-
+  
   const selectStyle = isOpen ? "border-green700 text-green700 bg-blue100" : "border-grey200 text-grey700 bg-white"
   const iconStyle = isOpen ? "rotate-180" : "rotate-0"
   

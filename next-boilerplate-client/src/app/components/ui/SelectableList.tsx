@@ -2,6 +2,7 @@
 
 
 import React, { useState } from "react";
+import equals from 'ramda/src/equals';
 
 
 /* LOCALS */
@@ -37,6 +38,7 @@ interface RenderListRowProps {
 interface RenderListProps extends SelectableListFooterActions {
   currentSelection: Selection,
   list: ListItem[]
+  closeList: () => void,
 }
 
 
@@ -61,7 +63,7 @@ const RenderListRow = function({ isChecked, onClickRow, text }: RenderListRowPro
 
 
 // a scroll based requesting could be a nice solution for fetching data in smaller batches
-export default function({ currentSelection, list, updateCurrentSelection }: RenderListProps) {
+export default function({ closeList, currentSelection, list, updateCurrentSelection }: RenderListProps) {
   const [selection, setSelection] = useState<Selection>(currentSelection);
   const [searchValue, setSearchValue] = useState('');
 
@@ -71,7 +73,7 @@ export default function({ currentSelection, list, updateCurrentSelection }: Rend
     })
 
   const hasSearchItem = filteredList.length > 0;
-
+    
   return (
     <React.Fragment>
       <div className="flex items-center px-[15px] py-[10px]">
@@ -126,8 +128,19 @@ export default function({ currentSelection, list, updateCurrentSelection }: Rend
       {!hasSearchItem && <NoSearchFoundMessage />}
       <Separator />
       <div className="flex px-[15px] py-[10px] justify-between">
-        <Button text={'Cancel'} isPrimary={false} onClick={() => updateCurrentSelection([])} />
-        <Button text={'Apply'} onClick={() => updateCurrentSelection(selection)}/>
+        <Button 
+          text={'Cancel'}
+          isPrimary={false} onClick={() => setSelection([])} 
+          isDisabled={selection.length === 0}
+        />
+        <Button 
+          text={'Apply'} 
+          onClick={function() {
+            closeList();
+            updateCurrentSelection(selection);
+          }}
+          isDisabled={equals(currentSelection, selection)}
+        />
       </div>  
     </React.Fragment>
   )
