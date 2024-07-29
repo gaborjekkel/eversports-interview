@@ -68,8 +68,8 @@ export default function Home() {
   });
   
   return (
-    <div className="flex flex-col h-[100%] overflow-y-auto">
-      <div className="flex flex-wrap px-[20px] py-[20px] max-md:flex-col bg-white">
+    <div className="flex flex-col h-[100%] overflow-hidden">
+      <div className="flex flex-wrap p-[20px] max-md:flex-col bg-white">
         <div className={dropDownWrapper}>
           <DropDown 
             text={productFilterNum === 0 ? 'Select Product' : `${productFilterNum} product${productFilterNum > 1 ? 's' : ''} selected`}
@@ -105,13 +105,13 @@ export default function Home() {
             }} 
           />
         )}
-        </div>
+      </div>
       <Separator />
-      <div className="flex w-[100%] mt-[20px]">
-        {error && <div className="mx-auto"><ErrorMessage /></div>}
-        {loading && <div className="mx-auto"><LoadingMessage /></div>}
+      <div className="flex flex-col grow p-[20px] overflow-y-auto">
+        {error && <div className="m-auto"><ErrorMessage /></div>}
+        {loading && <div className="m-auto"><LoadingMessage /></div>}
         {!error && !loading && data.purchases.nodes.length > 0 &&  (
-          <div className="flex flex-col px-[20px]">
+          <React.Fragment>
             <div className="flex flex-wrap gap-[30px]">
               {data.purchases.nodes.map((i:PurchaseData) => <PurchaseTile key={i.id} imageUrl={i.product.imageUrl} name={i.product.name} />)}
             </div>
@@ -120,7 +120,7 @@ export default function Home() {
                 <Button text={'Load more'} onClick={() => setPurchaseAmount(purchaseAmount + PAGINATION_STEP)} />
               </div>
             )}
-          </div>
+          </React.Fragment>
         )}
         {!error && !loading && data.purchases.nodes.length === 0 &&  (
           <div className="mt-[20px] mx-auto">
@@ -129,5 +129,5 @@ export default function Home() {
         )}
       </div>
     </div>
-  );
+  )
 }
