@@ -1,6 +1,7 @@
 /* MAIN */
 
-{/* copied from tailwind https://tailwindcss.com/docs/animation#basic-usage */}
+
+// copied from tailwind https://tailwindcss.com/docs/animation#basic-usage
 export default function() {
     return (
         <svg className={`animate-spin w-[40px] h-[40px] text-green500`} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

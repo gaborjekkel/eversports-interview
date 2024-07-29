@@ -12,7 +12,7 @@ import SelectableList, { SelectableListFooterActions, ListItem, Selection } from
 import { ErrorMessage, LoadingMessage } from "./StateMessages";
 
 
-/* TYPE */
+/* TYPES */
 
 
 type DataTransformer = ({}:any) => ListItem[];
@@ -75,28 +75,18 @@ const RenderContent = function(props: RenderContentProps) {
     }
   }, [])
 
-  let Renderer;
-
-  if(error) {
-    Renderer = <ErrorMessage />
-  } else if(loading) {
-    Renderer = <LoadingMessage />;
-  } else if(!error && !loading && data) {
-    Renderer = <SelectableList 
-      list={dataTransformer(data)}
-      updateCurrentSelection={updateCurrentSelection}
-      currentSelection={currentSelection}
-      closeList={closeList}
-    />
-  } else {
-    // fallback for any unknown issue
-    Renderer = <ErrorMessage />
-  }
-
-  // there might be something better for handling outside click, but I tried to keep my code flexible instead of turning a huge package up side down to match style and functional expectations
   return (
     <div ref={list} className="absolute bg-white top-[calc(100%+10px)] w-[100%] shadow-m rounded-[10px] z-50">
-      {Renderer}
+      {error && <ErrorMessage />}
+      {loading && <LoadingMessage />}
+      {!error && !loading && data && (
+        <SelectableList 
+          list={dataTransformer(data)}
+          updateCurrentSelection={updateCurrentSelection}
+          currentSelection={currentSelection}
+          closeList={closeList} 
+        />
+      )}
     </div>
   )
 }

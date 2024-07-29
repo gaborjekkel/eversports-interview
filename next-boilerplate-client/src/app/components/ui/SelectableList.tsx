@@ -34,7 +34,6 @@ interface RenderListRowProps {
   text: string
 }
 
-
 interface RenderListProps extends SelectableListFooterActions {
   currentSelection: Selection,
   list: ListItem[]
@@ -58,11 +57,9 @@ const RenderListRow = function({ isChecked, onClickRow, text }: RenderListRowPro
 }
 
 
-
 /* MAIN */
 
 
-// a scroll based requesting could be a nice solution for fetching data in smaller batches
 export default function({ closeList, currentSelection, list, updateCurrentSelection }: RenderListProps) {
   const [selection, setSelection] = useState<Selection>(currentSelection);
   const [searchValue, setSearchValue] = useState('');
@@ -91,7 +88,6 @@ export default function({ closeList, currentSelection, list, updateCurrentSelect
       <Separator />
       {hasSearchItem && 
         <React.Fragment>
-          {/* as there was no clear UX provided Select All can select invisible elements as it selects the entire list, an idea would be to change text if search is active and only select item after filtering*/}
           <RenderListRow
             text={'Select All'}
             isChecked={list.length === selection.length}
