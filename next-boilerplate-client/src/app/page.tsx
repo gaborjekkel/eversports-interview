@@ -2,7 +2,7 @@
 /* EXTERNALS */
 
 
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useQuery, gql } from '@apollo/client';
 
 
@@ -32,12 +32,21 @@ interface UserData {
   lastName: string,
 }
 
-interface PurchaseData {
+interface PurchasesData {
   id: string,
   product: {
     name: string,
     imageUrl: string,
   }
+}
+
+interface PurchasesGridProps {
+  purchases: PurchasesData[],
+}
+
+interface RenderPurchaseGrid {
+  productFilter: Selection,
+  userFilter: Selection,
 }
 
 
@@ -47,6 +56,63 @@ interface PurchaseData {
 const dropDownWrapper = 'flex grow mr-[20px] max-w-[370px] max-md:mr-[0px] max-md:mb-[10px] max-md:max-w-[100%]';
 const PAGINATION_STEP = 10;
 
+const PurchasesGrid = function({ purchases }: PurchasesGridProps) {
+  return (
+    <div className="flex flex-wrap gap-[30px]">
+      {purchases.map((i:PurchasesData) => <PurchaseTile key={i.id} imageUrl={i.product.imageUrl} name={i.product.name} />)}
+    </div>
+  )
+};
+
+const RenderPurchasesGrid = function({ productFilter, userFilter }: RenderPurchaseGrid) {
+  const [purchaseAmount, setPurchaseAmount] = useState(PAGINATION_STEP)
+
+  const { loading, error, data, previousData } = useQuery(gql(PURCHASES_QUERY), {
+    variables: {
+      first: productFilter.length > 0 || userFilter.length > 0 ? 0 : purchaseAmount,
+      productIds: productFilter,
+      userIds: userFilter,
+    },
+  });
+
+  const wrapperDiv = useRef<HTMLInputElement>(null);
+  useEffect(function() {
+    if(data && wrapperDiv.current) {
+      if(wrapperDiv.current.scrollHeight > wrapperDiv.current.offsetHeight) {
+        wrapperDiv.current.scrollTop = wrapperDiv.current.scrollHeight
+      }
+    }
+  }, [data])
+
+  return (
+    <div ref={wrapperDiv} className="flex flex-col grow p-[20px] overflow-y-auto">
+        {error && <div className="m-auto"><ErrorMessage /></div>}
+        {loading && !previousData && <div className="m-auto"><LoadingMessage /></div>}
+        {loading && previousData && (
+          <React.Fragment>
+            <PurchasesGrid purchases={previousData.purchases.nodes} />
+            <div className="m-auto"><LoadingMessage /></div>
+          </React.Fragment>
+        )}
+        {!error && !loading && data.purchases.nodes.length > 0 &&  (
+          <React.Fragment>
+            <PurchasesGrid purchases={data.purchases.nodes} />
+            {data.purchases.pageInfo.hasNextPage && (
+              <div className="mt-[20px] mx-auto">
+                <Button text={'Load more'} onClick={() => setPurchaseAmount(purchaseAmount + PAGINATION_STEP)} />
+              </div>
+            )}
+          </React.Fragment>
+        )}
+        {!error && !loading && data.purchases.nodes.length === 0 &&  (
+          <div className="mt-[20px] mx-auto">
+            <NoSearchFoundMessage />
+          </div>
+        )}
+      </div>
+  )
+}
+
 
 /* MAIN */
 
@@ -54,18 +120,9 @@ const PAGINATION_STEP = 10;
 export default function Home() {
   const [productFilter, setProductFilter] = useState<Selection>([])
   const [userFilter, setUserFilter] = useState<Selection>([])
-  const [purchaseAmount, setPurchaseAmount] = useState(PAGINATION_STEP)
 
   const productFilterNum = productFilter.length;
   const userFilterNum = userFilter.length;
-
-  const { loading, error, data } = useQuery(gql(PURCHASES_QUERY), {
-    variables: {
-      first: productFilterNum > 0 || userFilterNum > 0 ? 0 : purchaseAmount,
-      productIds: productFilter,
-      userIds: userFilter,
-    },
-  });
   
   return (
     <div className="flex flex-col h-[100%] overflow-hidden">
@@ -107,27 +164,7 @@ export default function Home() {
         )}
       </div>
       <Separator />
-      <div className="flex flex-col grow p-[20px] overflow-y-auto">
-        {error && <div className="m-auto"><ErrorMessage /></div>}
-        {loading && <div className="m-auto"><LoadingMessage /></div>}
-        {!error && !loading && data.purchases.nodes.length > 0 &&  (
-          <React.Fragment>
-            <div className="flex flex-wrap gap-[30px]">
-              {data.purchases.nodes.map((i:PurchaseData) => <PurchaseTile key={i.id} imageUrl={i.product.imageUrl} name={i.product.name} />)}
-            </div>
-            {data.purchases.pageInfo.hasNextPage && (
-              <div className="mt-[20px] mx-auto">
-                <Button text={'Load more'} onClick={() => setPurchaseAmount(purchaseAmount + PAGINATION_STEP)} />
-              </div>
-            )}
-          </React.Fragment>
-        )}
-        {!error && !loading && data.purchases.nodes.length === 0 &&  (
-          <div className="mt-[20px] mx-auto">
-            <NoSearchFoundMessage />
-          </div>
-        )}
-      </div>
+      <RenderPurchasesGrid productFilter={productFilter} userFilter={userFilter}/>
     </div>
   )
 }
